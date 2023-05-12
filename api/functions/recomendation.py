@@ -4,9 +4,10 @@ from googleapiclient.errors import HttpError
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import os
 
 # Set the API key and define the API service
-API_KEY = 'AIzaSyDLzoqpEmFqttF3HDprXGR5eXphBUX5lo4'
+api_key = os.getenv('API_KEY') 
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
 youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=API_KEY)

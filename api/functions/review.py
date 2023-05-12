@@ -1,11 +1,11 @@
 
 
 from googleapiclient.discovery import build
-
+import os
 
 def getVideoStatistics(youtube_video_url):
     # Define the YouTube API client
-    api_key = 'AIzaSyDLzoqpEmFqttF3HDprXGR5eXphBUX5lo4'
+    api_key = os.getenv('API_KEY') 
     youtube = build('youtube', 'v3', developerKey=api_key)
 
     # good link ZyKwNDV_9M4
