@@ -4,51 +4,46 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from django.conf import settings
 import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
 
 def getMovieRecommendations(user_input_title, user_input_genre):
-    # Load the Netflix dataset
     csv_path = os.path.join(settings.STATIC_ROOT, 'netflix_titles.csv')
+
+    # Load the Netflix movie dataset from a CSV file
     netflix_data = pd.read_csv(csv_path)
 
-    # Preprocess the dataset
-    netflix_data["listed_in"] = netflix_data["listed_in"].apply(lambda x: [i.strip() for i in x.split(",")])
-    netflix_data["description"] = netflix_data["description"].apply(lambda x: x.lower())
+    # Convert the text data into numerical features
+    vectorizer = CountVectorizer(stop_words='english')
+    X = vectorizer.fit_transform(netflix_data['description'])
+    y = netflix_data['listed_in']
 
-    # Create a CountVectorizer to convert text into vectors
-    vectorizer = CountVectorizer(stop_words="english")
+    # Train a Multinomial Naive Bayes classifier on all the data
+    clf = MultinomialNB()
+    clf.fit(X, y)
 
-    # Create a sparse matrix of the movie descriptions
-    movie_descriptions = vectorizer.fit_transform(netflix_data["description"])
+    # Convert the input genre into numerical features
+    X_input = vectorizer.transform([user_input_genre])
 
-    # Compute the cosine similarity matrix of the movie descriptions
-    cosine_sim_matrix = cosine_similarity(movie_descriptions)
+    # Predict the genre of the movie using the classifier
+    predicted_genre = clf.predict(X_input)
 
-    # Find the indices of movies with the given genre
-    genre_indices = netflix_data[netflix_data["listed_in"].apply(lambda x: user_input_genre.lower() in [i.lower() for i in x])].index
+    # Filter the Netflix movie dataset by predicted genre
+    genre_data = netflix_data[netflix_data['listed_in'] == predicted_genre[0]]
 
-    # Find the indices of movies with the given title
-    title_indices = netflix_data[netflix_data["title"].apply(lambda x: user_input_title.lower() in x.lower())].index
-
-    # Find the intersection of the two sets of indices
-    movie_indices = list(set(genre_indices).intersection(set(title_indices)))
-
-    # Convert the user input into a vector
-    user_input_vector = vectorizer.transform([user_input_title + ' ' + user_input_genre])
-
-    # Find the top 5 most similar movies
-    similarity_scores = list(enumerate(cosine_sim_matrix[user_input_vector[0].toarray()[0]]))
-    similarity_scores = sorted(similarity_scores, key=lambda x: x[1][0], reverse=True)
-    top_5_movie_indices = [i[0] for i in similarity_scores[1:6]]
-
-    # Print the top 5 movies
-    print("Top 5 similar movies to {} in the genre of {}: ".format(user_input_title, user_input_genre))
+    # Print the titles of movies in the filtered dataset
+    # print("Matching movies:")
+    # for title in genre_data['title']:
+    #     print(title)
 
     movies = []
-    for idx in top_5_movie_indices:
+    for idx in range(5):
         movies.append({
-            "date" : netflix_data.iloc[idx]["release_year"],
-            "title" : netflix_data.iloc[idx]["title"],
-            "description" : netflix_data.iloc[idx]["description"]
+            "date" : genre_data.iloc[idx]["release_year"],
+            "title" : genre_data.iloc[idx]["title"],
+            "description" : genre_data.iloc[idx]["description"]
         })
         
     return movies
