@@ -23,10 +23,6 @@ def getMovieRecommendations(user_input_title, user_input_genre):
     # Compute the cosine similarity matrix of the movie descriptions
     cosine_sim_matrix = cosine_similarity(movie_descriptions)
 
-    # Get user input for movie title and genre
-    user_input_title = input("Enter movie title: ")
-    user_input_genre = input("Enter movie genre: ")
-
     # Find the indices of movies with the given genre
     genre_indices = netflix_data[netflix_data["listed_in"].apply(lambda x: user_input_genre.lower() in [i.lower() for i in x])].index
 
