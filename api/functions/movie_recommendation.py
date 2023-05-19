@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
 
-def getMovieRecommendations(user_input_title, user_input_genre):
+def getMovieRecommendations(user_input_title):
     csv_path = os.path.join(settings.STATIC_ROOT, 'netflix_titles.csv')
 
     # Load the Netflix movie dataset from a CSV file
@@ -25,7 +25,7 @@ def getMovieRecommendations(user_input_title, user_input_genre):
     clf.fit(X, y)
 
     # Convert the input genre into numerical features
-    X_input = vectorizer.transform([user_input_genre])
+    X_input = vectorizer.transform([user_input_title])
 
     # Predict the genre of the movie using the classifier
     predicted_genre = clf.predict(X_input)

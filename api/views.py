@@ -33,11 +33,10 @@ class YoutubeAnalysisView(APIView):
 
 class MovieRecommendationView(APIView):
     def post(self, request, format=None):
-        movieTitle = request.data["movieTitle"]
-        movieGenre = request.data["movieGenre"]
+        movieDescription = request.data["movieDescription"]
 
         try:
-            movies = getMovieRecommendations(movieTitle, movieGenre)
+            movies = getMovieRecommendations(movieDescription)
             data = {"movies": movies}
             return Response(data, status=status.HTTP_200_OK)
         except Exception as error:
